@@ -221,7 +221,7 @@ function askStage1Question() {
     const btn = document.createElement("button");
     btn.className = "opt-btn";
     btn.textContent = val;
-    btn.addEventListener("click", () => handleStage1Answer(val, correct, btn, optsArea));
+    btn.addEventListener("click", () => preserveScroll(() => handleStage1Answer(val, correct, btn, optsArea)));
     optsArea.appendChild(btn);
   });
 }
@@ -287,7 +287,7 @@ function askStage2Question() {
     const btn = document.createElement("button");
     btn.className = "opt-btn";
     btn.textContent = val;
-    btn.addEventListener("click", () => handleStage2Answer(val, correct, btn, optsArea));
+    btn.addEventListener("click", () => preserveScroll(() => handleStage2Answer(val, correct, btn, optsArea)));
     optsArea.appendChild(btn);
   });
 }
@@ -345,7 +345,7 @@ function askStage3Question() {
     const btn = document.createElement("button");
     btn.className = "opt-btn";
     btn.textContent = val;
-    btn.addEventListener("click", () => handleStage3Answer(val, correct, year, btn, optsArea));
+    btn.addEventListener("click", () => preserveScroll(() => handleStage3Answer(val, correct, year, btn, optsArea)));
     optsArea.appendChild(btn);
   });
 }
@@ -410,7 +410,7 @@ function askStage4Question() {
     const btn = document.createElement("button");
     btn.className = "opt-btn";
     btn.textContent = DAY_NAMES[val];
-    btn.addEventListener("click", () => handleStage4Answer(val, correct, total, btn, optsArea));
+    btn.addEventListener("click", () => preserveScroll(() => handleStage4Answer(val, correct, total, btn, optsArea)));
     optsArea.appendChild(btn);
   });
 }
@@ -469,7 +469,7 @@ function askStage5Question() {
     const btn = document.createElement("button");
     btn.className = "opt-btn";
     btn.textContent = DAY_NAMES[val];
-    btn.addEventListener("click", () => handleStage5Answer(val, calc, day, month, year, btn, optsArea));
+    btn.addEventListener("click", () => preserveScroll(() => handleStage5Answer(val, calc, day, month, year, btn, optsArea)));
     optsArea.appendChild(btn);
   });
 }
@@ -520,6 +520,19 @@ function shuffledOptions(pool, correct, limitCount) {
   return opts;
 }
 
+// بعض المتصفحات ترجع السكرول لفوك تلقائياً لما عنصر متركز عليه يصير disabled
+// أو ينحذف من الصفحة (مثل زر الجواب أو زر "السؤال الجاي"). هاي تحفظ مكان
+// السكرول قبل التغيير وترجعه بعد ما المتصفح يخلص أي تصحيح تلقائي إله.
+function preserveScroll(fn) {
+  const y = window.scrollY;
+  fn();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y);
+    });
+  });
+}
+
 function showNext(callback, justPassed) {
   const row = document.getElementById("nextRow");
   if (justPassed) {
@@ -528,7 +541,7 @@ function showNext(callback, justPassed) {
   const btn = document.createElement("button");
   btn.className = "primary-btn";
   btn.textContent = "السؤال الجاي";
-  btn.addEventListener("click", callback);
+  btn.addEventListener("click", () => preserveScroll(callback));
   row.appendChild(btn);
 }
 

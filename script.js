@@ -108,6 +108,10 @@ function renderNav() {
       tab.addEventListener("click", () => { currentStage = n; render(); });
     }
     stageNav.appendChild(tab);
+    if (n === currentStage) {
+      // إذا الشريط يسكرول أفقي (شاشة متوسطة)، خلي التبويبة الفعالة بنص المجال المرئي
+      requestAnimationFrame(() => tab.scrollIntoView({ block: "nearest", inline: "center" }));
+    }
   }
 }
 

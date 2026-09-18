@@ -75,6 +75,17 @@ body {
   opacity: 0.6;
 }
 
+@media (max-width: 480px) {
+  .stage-nav {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  .stage-tab {
+    flex: 1 1 30%;
+    min-width: 0;
+  }
+}
+
 main {
   max-width: var(--max-w);
   margin: 20px auto 40px;
@@ -171,12 +182,10 @@ details.learn-box[open] summary { margin-bottom: 8px; }
 
 .options-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin-bottom: 10px;
 }
-.options-grid.wide { grid-template-columns: repeat(2, 1fr); }
-.options-grid.days { grid-template-columns: repeat(2, 1fr); }
 
 .opt-btn {
   background: var(--panel-2);
@@ -264,5 +273,10 @@ details.learn-box[open] summary { margin-bottom: 8px; }
 }
 
 @media (max-width: 420px) {
-  .options-grid { grid-template-columns: repeat(3, 1fr); }
+  .app-header { padding: 20px 14px 8px; }
+  .app-header h1 { font-size: 1.25rem; }
+  main, .stage-nav { padding-left: 12px; padding-right: 12px; }
+  .card { padding: 16px 14px; }
+  table.code-table { font-size: 0.8rem; }
+  table.code-table th, table.code-table td { padding: 6px 3px; }
 }

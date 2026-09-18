@@ -94,7 +94,7 @@ const STAGE_TITLES = {
   5: "الاختبار الشامل",
 };
 
-function renderNav() {
+function renderNav(scrollToActive) {
   stageNav.innerHTML = "";
   for (let n = 1; n <= 5; n++) {
     const tab = document.createElement("div");
@@ -110,15 +110,16 @@ function renderNav() {
       tab.addEventListener("click", () => { currentStage = n; render(); });
     }
     stageNav.appendChild(tab);
-    if (n === currentStage) {
-      // إذا الشريط يسكرول أفقي (شاشة متوسطة)، خلي التبويبة الفعالة بنص المجال المرئي
-      requestAnimationFrame(() => tab.scrollIntoView({ block: "nearest", inline: "center" }));
+    if (scrollToActive && n === currentStage) {
+      // إذا الشريط يسكرول أفقي (شاشة متوسطة)، خلي التبويبة الفعالة بنص المجال المرئي.
+      // ينحسب فقط لما نبدل مرحلة فعلياً، مو بكل سؤال، حتى ما تنقفز الصفحة لفوك.
+      tab.scrollIntoView({ block: "nearest", inline: "center" });
     }
   }
 }
 
 function render() {
-  renderNav();
+  renderNav(true);
   stageContainer.innerHTML = "";
   if (!stageUnlocked(currentStage)) {
     stageContainer.innerHTML = `<div class="lock-msg">هاي المرحلة مقفلة. خلّص المرحلة الي قبلها أول.</div>`;

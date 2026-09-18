@@ -16,6 +16,8 @@
   --good-soft: rgba(34, 197, 94, 0.14);
   --bad: #f43f5e;
   --bad-soft: rgba(244, 63, 94, 0.14);
+  --slow: #f0b429;
+  --slow-soft: rgba(240, 180, 41, 0.14);
   --locked: #4a5567;
   --radius: 18px;
   --radius-sm: 12px;
@@ -310,6 +312,18 @@ details.learn-box[open] summary { margin-bottom: 10px; }
 }
 .feedback.good { color: var(--good); }
 .feedback.bad { color: var(--bad); }
+.feedback.slow { color: var(--slow); font-size: 0.92rem; }
+
+.insights-wrap { max-width: var(--max-w); margin: 14px auto 0; padding: 0 18px; }
+.insights-wrap:empty { margin: 0; }
+.insights-box {
+  margin-bottom: 0;
+  border-color: rgba(240, 180, 41, 0.28);
+}
+.insights-box summary { color: var(--slow); }
+.insights-box p { font-size: 0.88rem; }
+.insights-box b { color: var(--text); }
+.tag-pct { color: var(--slow); font-weight: 600; }
 
 .breakdown {
   background: var(--panel-2);

@@ -20,9 +20,12 @@ function daysInMonth(month, year) {
   return d[month - 1];
 }
 
+// الكود الأصلي (7-5-3-1) مضاف عليه 3 من البداية، حتى ما تحتاج تزيدها كل
+// مرة تحسب بيها الـ Doomsday. القرنين الأولين 3 و1، والباقيين مكملهم لـ7
+// (7-3=4، 7-1=6)، يعني التسلسل: 3-1-6-4، وتتكرر كل 400 سنة.
 function centuryCode(year) {
   const C = Math.floor(year / 100);
-  const table = [7, 5, 3, 1];
+  const table = [3, 1, 6, 4];
   return table[((C % 4) + 4) % 4];
 }
 
@@ -31,12 +34,12 @@ function yearCode(year) {
   return (yy + Math.floor(yy / 4)) % 7;
 }
 
-// يوم الـ Doomsday لهاي السنة (1=أحد ... 7=سبت). الجمع بثابت 3 ثابت رياضياً
-// (نتيجة كل تواريخ ANCHOR_DAYS تطابق بعضها)، ما يحتاج حفظ.
+// يوم الـ Doomsday لهاي السنة (1=أحد ... 7=سبت). جمع مباشر، بلا ثابت زائد،
+// لأن الـ 3 مدموجة بكود القرن نفسه.
 function doomsdayOfYear(year) {
   const yc = yearCode(year);
   const cc = centuryCode(year);
-  const total = yc + cc + 3;
+  const total = yc + cc;
   const mod = ((total % 7) + 7) % 7;
   return { result: mod === 0 ? 7 : mod, yc, cc, total, mod };
 }
@@ -76,7 +79,7 @@ function diffDir(diff) { return diff >= 0 ? "لقدام" : "لخلف"; }
 
 /* ---------------- تخزين التقدم ---------------- */
 
-const STORAGE_KEY = "ddtrainer_progress_v2"; // v2: تغيرت طريقة الحساب من كودات الشهر إلى تواريخ ثابتة
+const STORAGE_KEY = "ddtrainer_progress_v3"; // v3: كود القرن صار فيه +3 مدموجة، مو خطوة منفصلة
 const THRESHOLD = { 1: 6, 2: 8, 3: 10, 4: 8, 5: null };
 
 function loadProgress() {
@@ -116,7 +119,7 @@ let currentStage = 1;
 
 /* ---------------- محرك التدريب الذكي (تحليل + اختيار وزين للأسئلة) ---------------- */
 
-const INSIGHTS_KEY = "ddtrainer_insights_v1";
+const INSIGHTS_KEY = "ddtrainer_insights_v2";
 
 function loadInsights() {
   try {
@@ -377,12 +380,12 @@ function buildStage1() {
       <h2>المرحلة 1 — كودات القرن</h2>
       <details class="learn-box" ${progress[1].total ? "" : "open"}>
         <summary>الشرح</summary>
-        <p>كل قرن إله كود ثابت، ويتكرر كل 400 سنة. القاعدة: كل ما تنتقل قرن، الكود ينزل 2 (وإذا وصل تحت 1 يرجع 7).</p>
+        <p>كل قرن إله كود ثابت، ويتكرر كل 400 سنة. احفظ بس أول رقمين: <b>3</b> و<b>1</b>، والباقيين مكملهم لـ7 (7−3=4، 7−1=6).</p>
         <table class="code-table">
           <tr><th>القرن</th><th>1600</th><th>1700</th><th>1800</th><th>1900</th><th>2000</th><th>2100</th></tr>
-          <tr><th>الكود</th><td>7</td><td>5</td><td>3</td><td>1</td><td>7</td><td>5</td></tr>
+          <tr><th>الكود</th><td>3</td><td>1</td><td>6</td><td>4</td><td>3</td><td>1</td></tr>
         </table>
-        <p class="formula-box">احفظها كسلسلة: <b>7 - 5 - 3 - 1</b>، وتتكرر.</p>
+        <p class="formula-box">احفظها كسلسلة: <b>3 - 1 - 6 - 4</b>، وتتكرر. هاي أساساً الكود القديم (7-5-3-1) وزائد عليه 3 من البداية، حتى تستخدمه مباشرة بلا ما تضيف شي كل مرة.</p>
       </details>
       ${progressBarHtml(1)}
       <div class="question-area" id="qArea"></div>
@@ -403,7 +406,7 @@ function askStage1Question() {
     <div class="question-sub">شنو كوده؟</div>`;
   document.getElementById("feedback").textContent = "";
   document.getElementById("nextRow").innerHTML = "";
-  const options = shuffledOptions([1, 3, 5, 7], correct);
+  const options = shuffledOptions([1, 3, 4, 6], correct);
   const optsArea = document.getElementById("optsArea");
   optsArea.className = "options-grid";
   optsArea.innerHTML = "";
@@ -452,8 +455,8 @@ function buildStage2() {
         <summary>الشرح</summary>
         <p class="formula-box">كود السنة = (آخر رقمين + آخر رقمين ÷ 4 بدون كسور) mod 7</p>
         <p>مثال: 1994 → آخر رقمين 94 → 94 ÷ 4 = 23 (بدون كسور) → 94 + 23 = 117 → 117 mod 7 = 5</p>
-        <p class="formula-box">الـ Doomsday (يوم الأسبوع الي تطابقه كل التواريخ الثابتة بالمرحلة الجاية) = (كود السنة + كود القرن + 3) mod 7، وإذا طلعت صفر اقرها 7 (سبت).</p>
-        <p>مثال: سنة 1994 → كود القرن 1 → 5 + 1 + 3 = 9 → mod 7 = 2 → الاثنين.</p>
+        <p class="formula-box">الـ Doomsday (يوم الأسبوع الي تطابقه كل التواريخ الثابتة بالمرحلة الجاية) = (كود السنة + كود القرن) mod 7، وإذا طلعت صفر اقرها 7 (سبت). كود القرن هسه فيه الـ 3 مدموجة، فما تحتاج تزيدها.</p>
+        <p>مثال: سنة 1994 → كود القرن (1900) = 4 → 5 + 4 = 9 → mod 7 = 2 → الاثنين.</p>
       </details>
       ${progressBarHtml(2)}
       <div class="question-area" id="qArea"></div>
@@ -501,7 +504,7 @@ function handleStage2Answer(chosen, dd, year, btn, optsArea) {
   const fb = document.getElementById("feedback");
   fb.className = "feedback " + feedbackClass(isCorrect, isSlow);
   fb.innerHTML = feedbackText(isCorrect, isSlow,
-    `غلط. كود السنة ${yy}+${Math.floor(yy/4)}=${dd.yc} (mod7)، كود القرن ${dd.cc}، ${dd.yc}+${dd.cc}+3=${dd.total} → mod 7 = ${dd.mod === 0 ? "7" : dd.mod} → ${DAY_NAMES[dd.result]}`);
+    `غلط. كود السنة ${yy}+${Math.floor(yy/4)}=${dd.yc} (mod7)، كود القرن ${dd.cc}، ${dd.yc}+${dd.cc}=${dd.total} → mod 7 = ${dd.mod === 0 ? "7" : dd.mod} → ${DAY_NAMES[dd.result]}`);
   const justPassed = registerAnswer(2, isCorrect);
   renderStageBar(2);
   showNext(() => { renderStageBar(2); askStage2Question(); }, justPassed);
@@ -739,7 +742,7 @@ function handleStage5Answer(chosen, calc, day, month, year, btn, optsArea) {
   bd.className = "breakdown show";
   bd.innerHTML = `
     <div>كود السنة: ${calc.yc} &middot; كود القرن: ${calc.cc} &middot; ${isLeap(year) ? "سنة كبيسة" : "سنة عادية"}</div>
-    <div>الـ Doomsday: ${calc.yc} + ${calc.cc} + 3 → mod 7 = ${DAY_NAMES[calc.doomsday]}</div>
+    <div>الـ Doomsday: ${calc.yc} + ${calc.cc} → mod 7 = ${DAY_NAMES[calc.doomsday]}</div>
     <div>التاريخ الثابت بـ${MONTH_NAMES[month]}: ${calc.anchor}</div>
     <div>الفرق: ${day} − ${calc.anchor} = ${calc.diff}</div>
     <div class="final">${day} ${MONTH_NAMES[month]} ${year} = ${DAY_NAMES[calc.result]}</div>

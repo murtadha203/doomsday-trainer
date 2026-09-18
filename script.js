@@ -99,11 +99,13 @@ function renderNav() {
   for (let n = 1; n <= 5; n++) {
     const tab = document.createElement("div");
     const unlocked = stageUnlocked(n);
+    const passed = progress[n] && progress[n].passed;
     tab.className = "stage-tab" +
       (n === currentStage ? " active" : "") +
-      (progress[n] && progress[n].passed ? " passed" : "") +
+      (passed ? " passed" : "") +
       (!unlocked ? " locked" : "");
-    tab.innerHTML = `<span class="num">${n}</span>${STAGE_TITLES[n]}`;
+    const badge = !unlocked ? "🔒" : (passed ? "✓" : n);
+    tab.innerHTML = `<span class="num">${badge}</span>${STAGE_TITLES[n]}`;
     if (unlocked) {
       tab.addEventListener("click", () => { currentStage = n; render(); });
     }
@@ -232,7 +234,7 @@ function handleStage1Answer(chosen, correct, btn, optsArea) {
   }
   const fb = document.getElementById("feedback");
   fb.className = "feedback " + (isCorrect ? "good" : "bad");
-  fb.textContent = isCorrect ? "صح!" : `غلط، الجواب ${correct}`;
+  fb.textContent = isCorrect ? "✓ صح!" : `✕ غلط، الجواب ${correct}`;
   const justPassed = registerAnswer(1, isCorrect);
   renderStageBar(1);
   showNext(() => { renderStageBar(1); askStage1Question(); }, justPassed);
@@ -298,7 +300,7 @@ function handleStage2Answer(chosen, correct, btn, optsArea) {
   }
   const fb = document.getElementById("feedback");
   fb.className = "feedback " + (isCorrect ? "good" : "bad");
-  fb.textContent = isCorrect ? "صح!" : `غلط، الجواب ${correct}`;
+  fb.textContent = isCorrect ? "✓ صح!" : `✕ غلط، الجواب ${correct}`;
   const justPassed = registerAnswer(2, isCorrect);
   renderStageBar(2);
   showNext(() => { renderStageBar(2); askStage2Question(); }, justPassed);
@@ -358,8 +360,8 @@ function handleStage3Answer(chosen, correct, year, btn, optsArea) {
   const fb = document.getElementById("feedback");
   fb.className = "feedback " + (isCorrect ? "good" : "bad");
   fb.innerHTML = isCorrect
-    ? "صح!"
-    : `غلط. ${yy} + ${Math.floor(yy/4)} = ${yy + Math.floor(yy/4)} → mod 7 = ${correct}`;
+    ? "✓ صح!"
+    : `✕ غلط. ${yy} + ${Math.floor(yy/4)} = ${yy + Math.floor(yy/4)} → mod 7 = ${correct}`;
   const justPassed = registerAnswer(3, isCorrect);
   renderStageBar(3);
   showNext(() => { renderStageBar(3); askStage3Question(); }, justPassed);
@@ -421,7 +423,7 @@ function handleStage4Answer(chosen, correct, total, btn, optsArea) {
   }
   const fb = document.getElementById("feedback");
   fb.className = "feedback " + (isCorrect ? "good" : "bad");
-  fb.innerHTML = isCorrect ? "صح!" : `غلط. المجموع ${total}، mod 7 = ${((total%7)+7)%7} → ${DAY_NAMES[correct]}`;
+  fb.innerHTML = isCorrect ? "✓ صح!" : `✕ غلط. المجموع ${total}، mod 7 = ${((total%7)+7)%7} → ${DAY_NAMES[correct]}`;
   const justPassed = registerAnswer(4, isCorrect);
   renderStageBar(4);
   showNext(() => { renderStageBar(4); askStage4Question(); }, justPassed);
@@ -480,7 +482,7 @@ function handleStage5Answer(chosen, calc, day, month, year, btn, optsArea) {
   }
   const fb = document.getElementById("feedback");
   fb.className = "feedback " + (isCorrect ? "good" : "bad");
-  fb.textContent = isCorrect ? "صح!" : "غلط، شوف التفصيل تحت";
+  fb.textContent = isCorrect ? "✓ صح!" : "✕ غلط، شوف التفصيل تحت";
   const bd = document.getElementById("breakdown");
   bd.className = "breakdown show";
   bd.innerHTML = `
